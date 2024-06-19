@@ -12,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class SpaceshipServiceImpl implements SpaceshipService{
@@ -44,6 +43,16 @@ public class SpaceshipServiceImpl implements SpaceshipService{
 
         // create a new page with those dtos, PageImpl<>('content', 'pageable', 'total')
         return new PageImpl<>(spaceshipList, pageable, spaceshipEntityPage.getTotalElements());
+    }
+
+    @Override
+    public List<Spaceship> getSpaceshipsWithParameter(String parameter) {
+
+        List<SpaceshipEntity> spaceshipEntityList = spaceshipRepository.findByNameContainingIgnoreCase(parameter);
+
+        return spaceshipEntityList.stream()
+                .map(spaceshipMapper::spaceshipEntityToSpaceshipMapper)
+                .toList();
     }
 
 

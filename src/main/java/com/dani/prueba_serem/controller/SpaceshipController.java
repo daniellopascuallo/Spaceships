@@ -10,6 +10,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/spaceships")
 public class SpaceshipController {
@@ -27,8 +29,8 @@ public class SpaceshipController {
         }
     }
 
-    @GetMapping
-    public Page<Spaceship> getSpaceships(@RequestParam(defaultValue = "0") int page,
+    @GetMapping("/page")
+    public ResponseEntity<Page<Spaceship>> getSpaceships(@RequestParam(defaultValue = "0") int page,
                                          @RequestParam(defaultValue = "5") int size) {
 
         if (page < 0) {
@@ -39,7 +41,19 @@ public class SpaceshipController {
         }
 
         PageRequest pageable = PageRequest.of(page, size);
-        return spaceshipService.getSpaceships(pageable);
+        Page<Spaceship> spaceshipsPage = spaceshipService.getSpaceships(pageable);
+
+        return ResponseEntity.ok(spaceshipsPage);
     }
+
+    @GetMapping
+    public ResponseEntity<List<Spaceship>> getSpaceshipsWithParameter(
+            @RequestParam(value = "name", required = false) String parameter) {
+
+        List<Spaceship> spaceshipList = spaceshipService.getSpaceshipsWithParameter(parameter);
+
+        return spaceshipList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(spaceshipList);
+    }
+
 
 }

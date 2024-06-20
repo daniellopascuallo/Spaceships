@@ -14,5 +14,11 @@ public interface SpaceshipService {
 
     List<Spaceship> getSpaceshipsWithParameter(String parameter);
 
+    Spaceship createSpaceship(Spaceship spaceship);
+
+    Spaceship updateSpaceship(Long id, Spaceship updatedSpaceship);
+
+    void deleteSpaceship(Long id);
+
 
 }

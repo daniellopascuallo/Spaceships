@@ -16,6 +16,8 @@ import java.util.List;
 @Service
 public class SpaceshipServiceImpl implements SpaceshipService{
 
+    public static final String SPACESHIP_ENTITY_NOT_FOUND_WITH_ID = "SpaceshipEntity not found with id: ";
+
     @Autowired
     private SpaceshipRepository spaceshipRepository;
 
@@ -27,7 +29,7 @@ public class SpaceshipServiceImpl implements SpaceshipService{
 
         return spaceshipRepository.findById(id)
                 .map(spaceshipMapper::spaceshipEntityToSpaceshipMapper)
-                .orElseThrow(() -> new EntityNotFoundException("SpaceshipEntity not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(SPACESHIP_ENTITY_NOT_FOUND_WITH_ID + id));
     }
 
     @Override
@@ -54,6 +56,48 @@ public class SpaceshipServiceImpl implements SpaceshipService{
                 .map(spaceshipMapper::spaceshipEntityToSpaceshipMapper)
                 .toList();
     }
+
+    @Override
+    public Spaceship createSpaceship(Spaceship spaceship) {
+
+        SpaceshipEntity spaceshipEntity = spaceshipMapper.spaceshipToSpaceshipEntityMapper(spaceship);
+        SpaceshipEntity savedSpaceshipEntity = spaceshipRepository.save(spaceshipEntity);
+        return spaceshipMapper.spaceshipEntityToSpaceshipMapper(savedSpaceshipEntity);
+    }
+
+    @Override
+    public Spaceship updateSpaceship(Long id, Spaceship updatedSpaceship) {
+
+        // confirm spaceship is in db
+        SpaceshipEntity existingSpaceshipEntity = spaceshipRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(SPACESHIP_ENTITY_NOT_FOUND_WITH_ID + id));
+
+        // map updatedSpaceship data to updatedSpaceshipEntity
+        SpaceshipEntity updatedSpaceshipEntity = spaceshipMapper.spaceshipToSpaceshipEntityMapper(updatedSpaceship);
+
+        // copy updated data to existingSpaceshipEntity
+        existingSpaceshipEntity.setName(updatedSpaceshipEntity.getName());
+        existingSpaceshipEntity.setOriginType(updatedSpaceshipEntity.getOriginType());
+        existingSpaceshipEntity.setFranchise(updatedSpaceshipEntity.getFranchise());
+        existingSpaceshipEntity.setCrewCapacity(updatedSpaceshipEntity.getCrewCapacity());
+
+        // save updated existing spaceshipEntity to db
+        SpaceshipEntity savedSpaceshipEntity = spaceshipRepository.save(existingSpaceshipEntity);
+
+        // retrieve updated spaceshipEntity mapped to the updated spaceship
+        return spaceshipMapper.spaceshipEntityToSpaceshipMapper(savedSpaceshipEntity);
+    }
+
+    @Override
+    public void deleteSpaceship(Long id) {
+
+        SpaceshipEntity deletingSpaceshipEntity = spaceshipRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(SPACESHIP_ENTITY_NOT_FOUND_WITH_ID + id));
+
+        spaceshipRepository.delete(deletingSpaceshipEntity);
+    }
+
+
 
 
 }

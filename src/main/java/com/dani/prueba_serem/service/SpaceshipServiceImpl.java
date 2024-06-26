@@ -6,6 +6,8 @@ import com.dani.prueba_serem.model.SpaceshipEntity;
 import com.dani.prueba_serem.repository.SpaceshipRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +27,7 @@ public class SpaceshipServiceImpl implements SpaceshipService{
     private SpaceshipMapper spaceshipMapper;
 
     @Override
+    @Cacheable("spaceships")
     public Spaceship getSpaceshipById(Long id){
 
         return spaceshipRepository.findById(id)
@@ -33,6 +36,7 @@ public class SpaceshipServiceImpl implements SpaceshipService{
     }
 
     @Override
+    @Cacheable("spaceships")
     public Page<Spaceship> getSpaceships(Pageable pageable){
 
         // retrieve an entity page from db, a page of entities, a list of SpaceshipEntity
@@ -48,6 +52,7 @@ public class SpaceshipServiceImpl implements SpaceshipService{
     }
 
     @Override
+    @Cacheable(value = "spaceships", key = "#parameter")
     public List<Spaceship> getSpaceshipsWithParameter(String parameter) {
 
         List<SpaceshipEntity> spaceshipEntityList = spaceshipRepository.findByNameContainingIgnoreCase(parameter);
@@ -58,6 +63,7 @@ public class SpaceshipServiceImpl implements SpaceshipService{
     }
 
     @Override
+    @CacheEvict(value = "spaceships", allEntries = true)
     public Spaceship createSpaceship(Spaceship spaceship) {
 
         SpaceshipEntity spaceshipEntity = spaceshipMapper.spaceshipToSpaceshipEntityMapper(spaceship);
@@ -66,6 +72,7 @@ public class SpaceshipServiceImpl implements SpaceshipService{
     }
 
     @Override
+    @CacheEvict(value = "spaceships", key = "#id")
     public Spaceship updateSpaceship(Long id, Spaceship updatedSpaceship) {
 
         // confirm spaceship is in db
@@ -89,6 +96,7 @@ public class SpaceshipServiceImpl implements SpaceshipService{
     }
 
     @Override
+    @CacheEvict(value = "spaceships", key = "#id")
     public void deleteSpaceship(Long id) {
 
         SpaceshipEntity deletingSpaceshipEntity = spaceshipRepository.findById(id)

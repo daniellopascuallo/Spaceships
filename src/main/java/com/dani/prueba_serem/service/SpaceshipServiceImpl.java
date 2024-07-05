@@ -5,7 +5,7 @@ import com.dani.prueba_serem.mapper.SpaceshipMapper;
 import com.dani.prueba_serem.model.SpaceshipEntity;
 import com.dani.prueba_serem.repository.SpaceshipRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -16,19 +16,18 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class SpaceshipServiceImpl implements SpaceshipService{
 
     public static final String SPACESHIP_ENTITY_NOT_FOUND_WITH_ID = "SpaceshipEntity not found with id: ";
 
-    @Autowired
-    private SpaceshipRepository spaceshipRepository;
+    private final SpaceshipRepository spaceshipRepository;
 
-    @Autowired
-    private SpaceshipMapper spaceshipMapper;
+    private final SpaceshipMapper spaceshipMapper;
 
     @Override
     @Cacheable("spaceships")
-    public Spaceship getSpaceshipById(Long id){
+    public Spaceship getSpaceshipById(final Long id){
 
         return spaceshipRepository.findById(id)
                 .map(spaceshipMapper::spaceshipEntityToSpaceshipMapper)
@@ -37,7 +36,7 @@ public class SpaceshipServiceImpl implements SpaceshipService{
 
     @Override
     @Cacheable("spaceships")
-    public Page<Spaceship> getSpaceships(Pageable pageable){
+    public Page<Spaceship> getSpaceships(final Pageable pageable){
 
         // retrieve an entity page from db, a page of entities, a list of SpaceshipEntity
         Page<SpaceshipEntity> spaceshipEntityPage = spaceshipRepository.findAll(pageable);
@@ -53,7 +52,7 @@ public class SpaceshipServiceImpl implements SpaceshipService{
 
     @Override
     @Cacheable(value = "spaceships", key = "#parameter")
-    public List<Spaceship> getSpaceshipsWithParameter(String parameter) {
+    public List<Spaceship> getSpaceshipsWithParameter(final String parameter) {
 
         List<SpaceshipEntity> spaceshipEntityList = spaceshipRepository.findByNameContainingIgnoreCase(parameter);
 
@@ -64,7 +63,7 @@ public class SpaceshipServiceImpl implements SpaceshipService{
 
     @Override
     @CacheEvict(value = "spaceships", allEntries = true)
-    public Spaceship createSpaceship(Spaceship spaceship) {
+    public Spaceship createSpaceship(final Spaceship spaceship) {
 
         SpaceshipEntity spaceshipEntity = spaceshipMapper.spaceshipToSpaceshipEntityMapper(spaceship);
         SpaceshipEntity savedSpaceshipEntity = spaceshipRepository.save(spaceshipEntity);
@@ -73,7 +72,7 @@ public class SpaceshipServiceImpl implements SpaceshipService{
 
     @Override
     @CacheEvict(value = "spaceships", key = "#id")
-    public Spaceship updateSpaceship(Long id, Spaceship updatedSpaceship) {
+    public Spaceship updateSpaceship(final Long id, final Spaceship updatedSpaceship) {
 
         // confirm spaceship is in db
         SpaceshipEntity existingSpaceshipEntity = spaceshipRepository.findById(id)
@@ -97,7 +96,7 @@ public class SpaceshipServiceImpl implements SpaceshipService{
 
     @Override
     @CacheEvict(value = "spaceships", key = "#id")
-    public void deleteSpaceship(Long id) {
+    public void deleteSpaceship(final Long id) {
 
         SpaceshipEntity deletingSpaceshipEntity = spaceshipRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(SPACESHIP_ENTITY_NOT_FOUND_WITH_ID + id));

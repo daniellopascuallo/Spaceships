@@ -3,7 +3,7 @@ package com.dani.prueba_serem.controller;
 import com.dani.prueba_serem.dto.Spaceship;
 import com.dani.prueba_serem.exception.custom.InvalidPageParameterException;
 import com.dani.prueba_serem.service.SpaceshipService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +15,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/spaceships")
+@RequiredArgsConstructor
 public class SpaceshipController {
 
-    @Autowired
-    private SpaceshipService spaceshipService;
+    private final SpaceshipService spaceshipService;
 
     @GetMapping("/{id}")
     public ResponseEntity<Spaceship> getSpaceshipById(@PathVariable Long id) {
